@@ -1,22 +1,34 @@
-import pymupdf
+import fitz
 
 
-def extract_text_from_pdf(pdf_path):
-    document = pymupdf.open(pdf_path)
+def extract_pages_from_pdf(pdf_path):
+    document = fitz.open(pdf_path)
 
-    text = ""
+    pages = []
 
-    for page in document:
-        text += page.get_text()
+    for page_number, page in enumerate(document):
+        text = page.get_text()
+
+        if text.strip():
+            pages.append({
+                "text": text,
+                "page": page_number + 1
+            })
 
     document.close()
 
-    return text
+    return pages
 
 
 if __name__ == "__main__":
     pdf_path = "data/agreements/sample_agreement.pdf"
 
-    text = extract_text_from_pdf(pdf_path)
+    pages = extract_pages_from_pdf(pdf_path)
 
-    print(text)
+    print(f"Total pages extracted: {len(pages)}")
+
+    for page in pages:
+        print("\n" + "=" * 50)
+        print(f"PAGE {page['page']}")
+        print("=" * 50)
+        print(page["text"][:500])
