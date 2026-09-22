@@ -1,14 +1,53 @@
-import fitz
+import pymupdf
+import re
 
+
+# ============================================================
+# TEXT NORMALIZATION
+# ============================================================
+
+def normalize_extracted_text(text):
+    """
+    Fix common PDF text-extraction issues.
+
+    Example:
+        I25,000 -> ₹25,000
+        I75,000 -> ₹75,000
+    """
+
+    # Fix Indian Rupee symbol being extracted as capital I
+    text = re.sub(r"\bI(?=\d)", "₹", text)
+
+    return text
+
+
+# ============================================================
+# PDF TEXT EXTRACTION
+# ============================================================
 
 def extract_pages_from_pdf(pdf_path):
-    document = fitz.open(pdf_path)
+    """
+    Extract text from each page of a PDF.
+
+    Returns:
+        List of dictionaries containing:
+        - text
+        - page number
+    """
+
+    document = pymupdf.open(pdf_path)
 
     pages = []
 
     for page_number, page in enumerate(document):
+
+        # Extract text from page
         text = page.get_text()
 
+        # Normalize extracted text
+        text = normalize_extracted_text(text)
+
+        # Only keep pages containing text
         if text.strip():
             pages.append({
                 "text": text,
@@ -18,17 +57,3 @@ def extract_pages_from_pdf(pdf_path):
     document.close()
 
     return pages
-
-
-if __name__ == "__main__":
-    pdf_path = "data/agreements/sample_agreement.pdf"
-
-    pages = extract_pages_from_pdf(pdf_path)
-
-    print(f"Total pages extracted: {len(pages)}")
-
-    for page in pages:
-        print("\n" + "=" * 50)
-        print(f"PAGE {page['page']}")
-        print("=" * 50)
-        print(page["text"][:500])
