@@ -1,5 +1,6 @@
 streamlit
 chromadb
+langchain-chroma
 pymupdf
 langchain-text-splitters
 langchain-huggingface

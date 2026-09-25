@@ -1,5 +1,13 @@
 import os
 import json
+import sys
+
+# Force UTF-8 output on Windows to prevent UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(
+        encoding="utf-8",
+        errors="replace"
+    )
 
 from dotenv import load_dotenv
 from google import genai
@@ -43,7 +51,6 @@ CHROMA_DIRECTORY = os.path.join(
     BASE_DIR,
     "chroma_db"
 )
-
 
 vector_store = Chroma(
     collection_name="rentwise_documents",
@@ -225,14 +232,17 @@ RISK LEVELS
 ------------------------------------------------------------
 
 HIGH:
+
 The clause creates a potentially significant financial,
 contractual, or practical consequence for the tenant.
 
 MEDIUM:
+
 The clause creates an important obligation, restriction,
 condition, or ambiguity that the tenant should understand.
 
 LOW:
+
 The clause is relatively straightforward but may still be
 useful for the tenant to review.
 
@@ -496,7 +506,9 @@ def display_results(clauses):
 
     if not clauses:
 
-        print("\nNo clauses requiring special review were identified.")
+        print(
+            "\nNo clauses requiring special review were identified."
+        )
 
         return
 
@@ -504,14 +516,16 @@ def display_results(clauses):
 
         risk = clause["risk_level"]
 
+        # ASCII labels are used instead of Unicode emojis
+        # to avoid Windows cp1252 encoding errors.
         if risk == "HIGH":
-            icon = "🔴"
+            icon = "[HIGH]"
 
         elif risk == "MEDIUM":
-            icon = "🟠"
+            icon = "[MEDIUM]"
 
         else:
-            icon = "🟢"
+            icon = "[LOW]"
 
         print(
             f"\n{index}. {clause['clause_title']}"
@@ -526,7 +540,7 @@ def display_results(clauses):
         )
 
         print(
-            f"\n   Clause:"
+            "\n   Clause:"
         )
 
         print(
@@ -534,7 +548,7 @@ def display_results(clauses):
         )
 
         print(
-            f"\n   Why Review:"
+            "\n   Why Review:"
         )
 
         print(
@@ -542,7 +556,7 @@ def display_results(clauses):
         )
 
         print(
-            f"\n   Potential Concern:"
+            "\n   Potential Concern:"
         )
 
         print(
@@ -550,7 +564,7 @@ def display_results(clauses):
         )
 
         print(
-            f"\n   Recommendation:"
+            "\n   Recommendation:"
         )
 
         print(
@@ -558,7 +572,7 @@ def display_results(clauses):
         )
 
         print(
-            f"\n   Source: "
+            "\n   Source: "
             f"{clause['source_file']}, "
             f"Page {clause['page']}"
         )
@@ -595,16 +609,18 @@ def display_summary(clauses):
         f"\nTotal Clauses: {len(clauses)}"
     )
 
+    # ASCII labels are used instead of Unicode emojis
+    # to avoid Windows cp1252 encoding errors.
     print(
-        f"🔴 High Risk: {high}"
+        f"[HIGH RISK] {high}"
     )
 
     print(
-        f"🟠 Medium Risk: {medium}"
+        f"[MEDIUM RISK] {medium}"
     )
 
     print(
-        f"🟢 Low Risk: {low}"
+        f"[LOW RISK] {low}"
     )
 
 
